@@ -1,0 +1,8 @@
+Link de la fechas
+xmlns:sys="clr-namespace:System;assembly=mscorlib"
+SelectedDate="{x:Static sys:DateTime.Now}"
+Para que en la tabla no aparezca la ultima linea sin nada
+IsReadOnly="True"
+Para cambiar el contenido de la tabla, en el binding ponemos el campo que queremos
+
+

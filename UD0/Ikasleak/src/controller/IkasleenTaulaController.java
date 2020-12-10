@@ -5,6 +5,7 @@
  */
 package controller;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -20,9 +21,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
-import model.Ikaslea;
-import model.Memoria;
+import model.*;
 
 /**
  * FXML Controller class
@@ -30,6 +31,8 @@ import model.Memoria;
  * @author IMadariaga
  */
 public class IkasleenTaulaController implements Initializable {
+
+    String fitxategia = "";
 
     @FXML
     private Label izenburua;
@@ -60,10 +63,28 @@ public class IkasleenTaulaController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         System.out.println("IkasleenTaula eszena inizializatzen dabil");
-        ObservableList<Ikaslea> ikZerrendaObservablea = Memoria.zerrendaSortu();
+        ObservableList<Ikaslea> ikZerrendaObserbablea = null;
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zein fitxategi ikusi nahi duzu?");
+        File file = fileChooser.showOpenDialog(null); //we don't block any window
+        if (file != null) {
+            //System.out.println("Name: " + file.getName());
+            fitxategia = file.getPath();
+        }
+        if (fitxategia.endsWith(".csv") || fitxategia.endsWith(".txt")) {
+            ikZerrendaObserbablea = KarakFitxategia.datuakMemorianKargatu(fitxategia);
+        } else if (fitxategia.endsWith(".xml")) {
+            ikZerrendaObserbablea = XMLFitxategia.datuakMemorianKargatu(fitxategia);
+        } else if (fitxategia.endsWith(".json")) {
+            ikZerrendaObserbablea = JsonFitxategia.datuakMemorianKargatu(fitxategia);
+        }
+
+        if (ikZerrendaObserbablea.equals(null)) {
+            ikZerrendaObserbablea = FXCollections.observableArrayList();
+        }
         //TableView-ko lerroak  ObservableList-arekin lotuko ditugu
-        tableviua.setItems(ikZerrendaObservablea);
+        tableviua.setItems(ikZerrendaObserbablea);
 
         //Lerro bakoitzean "List"-ako objetu bat bistaratuko da. 
         //Zutabe bakoitza zein atributorekin dagoen lotuta definituko dugu (zutabeko zeldak zein atributorekin beteko diren)
@@ -74,21 +95,21 @@ public class IkasleenTaulaController implements Initializable {
         //Table view elementua fxml-an editable dela adierazita daukagula, zelden editatzeak ondo funtzionatzeko:
         zenbakiaCol.setCellFactory(TextFieldTableCell.<Ikaslea, Integer>forTableColumn(new IntegerStringConverter()));
         zenbakiaCol.setOnEditCommit((TableColumn.CellEditEvent<Ikaslea, Integer> t) -> {
-                    ((Ikaslea) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())).setZenbakia(t.getNewValue());
-                });
+            ((Ikaslea) t.getTableView().getItems().get(
+                    t.getTablePosition().getRow())).setZenbakia(t.getNewValue());
+        });
 
         izenaCol.setCellFactory(TextFieldTableCell.<Ikaslea>forTableColumn());
         izenaCol.setOnEditCommit((TableColumn.CellEditEvent<Ikaslea, String> t) -> {
-                    ((Ikaslea) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())).setIzena(t.getNewValue());
-                });
+            ((Ikaslea) t.getTableView().getItems().get(
+                    t.getTablePosition().getRow())).setIzena(t.getNewValue());
+        });
 
         abizena1Col.setCellFactory(TextFieldTableCell.<Ikaslea>forTableColumn());
         abizena1Col.setOnEditCommit((TableColumn.CellEditEvent<Ikaslea, String> t) -> {
-                    ((Ikaslea) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())).setAbizena1(t.getNewValue());
-                });
+            ((Ikaslea) t.getTableView().getItems().get(
+                    t.getTablePosition().getRow())).setAbizena1(t.getNewValue());
+        });
 
     }
 
@@ -113,6 +134,14 @@ public class IkasleenTaulaController implements Initializable {
         Ikaslea ikaslea = tableviua.getSelectionModel().getSelectedItem();
         tableviua.getItems().remove(ikaslea);
         System.out.println("Aukeratutako ikaslea ezabatua izan da.");
+    }
+
+    @FXML
+    private void handleGordeAction(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        //File file = fileChooser.showSaveDialog()
+        
     }
 
 }
